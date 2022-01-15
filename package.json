@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "test": "mocha src/index.test.js",
-    "start": "node demo.js"
+    "browserify": "browserify src/index.js -o public/config-merger.js",
+    "start": "npm run browserify && node demo.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "chai": "^4.2.0",
     "mocha": "^9.1.4",
+    "browserify": "^17.0.0",
     "mock-xmlhttprequest": "^7.0.4"
   },
   "dependencies": {

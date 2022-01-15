@@ -1,0 +1,7 @@
+{
+	"repetitions": {
+		"repeat": 5,
+		"2 ^ x": "{pow(2, index)}",
+		"triple": "{index * 3}"
+	}
+}

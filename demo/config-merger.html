@@ -1,0 +1,57 @@
+<script src="../public/config-merger.js"></script>
+<script src="https://unpkg.com/dok-file-utils/src/file-utils.js"></script>
+
+<script id="code-javascript">
+	const configMerger = new ConfigMerger(new FileUtils(), false, {
+		PI: 3.14159,
+	});
+
+	function process() {
+		const data = JSON.parse(document.getElementById("source-data").textContent);
+		console.log(data);
+		configMerger.process(data, "/demo/", {})
+		.then(data => JSON.stringify(data, null, "  "))
+		.then(data => document.getElementById("output").textContent = data);
+	}
+</script>
+<hr>
+Config merger merges files together.
+<hr>
+Templates
+<div style="display: flex; flex-direction: row">
+	<div style="border: 1px solid black; flex: 1; height: 50px" id="template1"></div>
+	<div style="border: 1px solid black; flex: 1; height: 50px" id="template2"></div>
+	<div style="border: 1px solid black; flex: 1; height: 50px" id="template3"></div>
+	<script>
+		const fileUtils = new FileUtils();
+		fileUtils.load("template1.json").then(data => JSON.stringify(data, null, "\t"))
+		.then(data => document.getElementById("template1").textContent = data);
+		fileUtils.load("template2.json").then(data => JSON.stringify(data, null, "\t"))
+		.then(data => document.getElementById("template2").textContent = data);
+		fileUtils.load("template3.json").then(data => JSON.stringify(data, null, "\t"))
+		.then(data => document.getElementById("template3").textContent = data);
+	</script>
+</div>
+Code:
+<pre id="code" style="border: 1px solid black; padding: 5px; background-color: #FFFFcc"></pre>
+<script>
+	document.getElementById("code").textContent = document.getElementById("code-javascript").textContent;
+</script>
+<div style="display: flex; flex-direction: row;">
+	<textarea id="source-data" style="width: 300px; height: 200px">{
+  "templates": [
+    "template1",
+    "template2",
+    "template3"
+  ],
+  "initialData": 123
+}
+	</textarea>
+	<div>
+		<button onClick="process()">process()</button>
+	</div>
+	<pre id="output" style="border: 1px solid black; padding: 5px; width: 100%"></pre>
+</div>
+
+
+<hr>

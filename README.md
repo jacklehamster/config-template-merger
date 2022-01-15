@@ -7,7 +7,7 @@ Utility for merging json configs through various JSONs together, and by replacin
 
 Include the scripts in html as follow:
 ```
-<script src="https://unpkg.com/config-template-merger/src/config-merger.js"></script>
+<script src="https://unpkg.com/config-template-merger/public/config-merger.js"></script>
 ```
 
 

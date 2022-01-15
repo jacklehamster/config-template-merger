@@ -3,8 +3,8 @@ const math = require('mathjs');
 
 class ConfigMerger {
 	constructor(fileUtils, isDebug, constants) {
-		if (!(fileUtils instanceof FileUtils)) {
-			throw new Error("fileUtils is the wrong type: " + fileUtils);
+		if (!fileUtils || !fileUtils.load) {
+			throw new Error("fileUtils is invalid: " + fileUtils);
 		}
 		this.fileUtils = fileUtils;
 		this.isDebug = isDebug ? 1 : 0;
@@ -102,9 +102,8 @@ class ConfigMerger {
 	}
 }
 
+module.exports = {
+	ConfigMerger,
+};
 
-if (typeof module !== "undefined") {
-	module.exports = {
-    	ConfigMerger,
-	};
-}
+globalThis.ConfigMerger = ConfigMerger;
