@@ -7,7 +7,7 @@ Utility for merging json configs through various JSONs together, and by replacin
 
 Include the scripts in html as follow:
 ```
-<script src="https://unpkg.com/dok-file-utils/src/config-template-merger.js"></script>
+<script src="https://unpkg.com/config-template-merger/src/config-merger.js"></script>
 ```
 
 
@@ -47,10 +47,10 @@ module.exports = {
 
 ## Components
 
-### FileUtils
+### ConfigMerger
 
 #### Description
-FileUtils is used to load files. It caches data for duplicate files loaded to avoid repeated loads.
+ConfigMerger is used to compose templates using various
 
 #### Usage
 path/test-template.json
@@ -95,22 +95,6 @@ path/test-template.json
  
 ```
 
-### ImageLoader
-
-#### Description
-ImageLoader is used for loading images. Like FileUtils, it caches images to avoid duplicate. ImageLoader tracks progress of downloaded images, and it uses Blob to provide a URL that can be reused to avoid multiple load of images.
-
-### Usage
-```
-const imageLoader = new ImageLoader({
-			"assets/cursor.png": true,
-		});
-const image = await imageLoader.load("image.png");
-
-const cursor = await imageLoader.load("assets/cursor.png");
-// In this case, cursor.url is the URL of a block that can be reused. This is useful when using a changing cursor in CSS that points to an image, avoiding repeated load of that image.
-```
-
 ### Demo
 
-[demo](https://jacklehamster.github.io/dok-file-utils/)
+[demo](https://jacklehamster.github.io/config-template-merger/)
