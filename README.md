@@ -1,6 +1,10 @@
 # ![https://www.flaticon.com/free-icon/merge_690328](icon.png) config-template-merger
 Utility for merging json configs through various JSONs together, and by replacing variables.
 
+[![CodeQL](https://github.com/jacklehamster/config-template-merger/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/jacklehamster/config-template-merger/actions/workflows/codeql-analysis.yml)
+
+[![pages-build-deployment](https://github.com/jacklehamster/config-template-merger/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/jacklehamster/config-template-merger/actions/workflows/pages/pages-build-deployment)
+
 ## Setup
 
 ### Directly in web page
