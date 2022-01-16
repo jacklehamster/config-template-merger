@@ -3,10 +3,7 @@ const math = require('mathjs');
 
 class ConfigMerger {
 	constructor(fileUtils, isDebug, constants) {
-		if (!fileUtils || !fileUtils.load) {
-			throw new Error("fileUtils is invalid: " + fileUtils);
-		}
-		this.fileUtils = fileUtils;
+		this.fileUtils = fileUtils || new FileUtils();
 		this.isDebug = isDebug ? 1 : 0;
 		this.constants = constants || {};
 	}

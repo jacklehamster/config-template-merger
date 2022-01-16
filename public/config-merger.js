@@ -90414,10 +90414,7 @@ const math = require('mathjs');
 
 class ConfigMerger {
 	constructor(fileUtils, isDebug, constants) {
-		if (!fileUtils || !fileUtils.load) {
-			throw new Error("fileUtils is invalid: " + fileUtils);
-		}
-		this.fileUtils = fileUtils;
+		this.fileUtils = fileUtils || new FileUtils();
 		this.isDebug = isDebug ? 1 : 0;
 		this.constants = constants || {};
 	}
@@ -90447,7 +90444,7 @@ class ConfigMerger {
 		if (path.startsWith("/")) {
 			return path;
 		}
-		const gameDir = gamePath.split("").slice(0, -1).join("/");
+		const gameDir = gamePath.split("/").slice(0, -1).join("/");
 		return gameDir ? `${gameDir}/${path}`: path;
 	}
 
