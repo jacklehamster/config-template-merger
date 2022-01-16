@@ -12,10 +12,10 @@ class ConfigMerger {
 	}
 
 	async process(data, gamePath, gameSettings) {
-		if (!gamePath || !gameSettings) {
+		if (!gameSettings) {
 			throw new Error("gamePath and gameSettings are required.");
 		}
-		return this.translate(await this.applyTemplates(data, gamePath), gameSettings);
+		return this.translate(await this.applyTemplates(data, gamePath || ""), gameSettings);
 	}
 
 	merge(data, newData) {
@@ -36,8 +36,8 @@ class ConfigMerger {
 		if (path.startsWith("/")) {
 			return path;
 		}
-		const gameDir = gamePath.split("/").slice(0, -1).join("/");
-		return `${gameDir}/${path}`;
+		const gameDir = gamePath.split("").slice(0, -1).join("/");
+		return gameDir ? `${gameDir}/${path}`: path;
 	}
 
 	async applyTemplates(data, gamePath) {

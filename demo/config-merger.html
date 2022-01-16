@@ -9,7 +9,7 @@
 	function process() {
 		const data = JSON.parse(document.getElementById("source-data").textContent);
 		console.log(data);
-		configMerger.process(data, "/demo/", {})
+		configMerger.process(data, "", {})
 		.then(data => JSON.stringify(data, null, "  "))
 		.then(data => document.getElementById("output").textContent = data);
 	}
