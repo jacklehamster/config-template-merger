@@ -63,7 +63,7 @@ path/test-template.json
 ```
 
 ```
-  	const configMerger = new ConfigMerger(fileUtils, true, {
+  	const configMerger = new ConfigMerger(fileUtils, {
   		constant: 567,
   	});
 

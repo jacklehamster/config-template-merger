@@ -90413,9 +90413,8 @@ const { FileUtils } = require("dok-file-utils");
 const math = require('mathjs');
 
 class ConfigMerger {
-	constructor(fileUtils, isDebug, constants) {
+	constructor(fileUtils, constants) {
 		this.fileUtils = fileUtils || new FileUtils();
-		this.isDebug = isDebug ? 1 : 0;
 		this.constants = constants || {};
 	}
 
@@ -90499,7 +90498,6 @@ class ConfigMerger {
 					... this.constants,
 					viewportWidth: viewportSize[0],
 					viewportHeight: viewportSize[1],
-					isDebug: this.isDebug,
 					index: index ?? 0,
 					random: Math.random(),
 				});

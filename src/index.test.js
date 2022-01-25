@@ -16,7 +16,7 @@ MockXhr.onSend = (xhr) => {
 describe('ConfigMerger', function() {
   it('should merge configs', async function() {
   	const fileUtils = new FileUtils(MockXhr);
-  	const configMerger = new ConfigMerger(fileUtils, true, {
+  	const configMerger = new ConfigMerger(fileUtils, {
   		constant: 567,
   	});
 
