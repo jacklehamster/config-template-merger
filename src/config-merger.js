@@ -1,5 +1,5 @@
 const { FileUtils } = require("dok-file-utils");
-const math = require('mathjs');
+const {create, all} = require('mathjs');
 const format = require("string-template");
 
 
@@ -13,13 +13,15 @@ class ConfigMerger {
 			repeat: true,
 			table: true,
 		};
+		this.math = create(all);
+	}
+
+	mathImport(config) {
+		this.math.import(config);
 	}
 
 	async process(data, gamePath, gameSettings) {
-		if (!gameSettings) {
-			throw new Error("gamePath and gameSettings are required.");
-		}
-		return this.translate(await this.applyTemplates(data, gamePath || ""), gameSettings);
+		return this.translate(await this.applyTemplates(data, gamePath || ""), gameSettings||{});
 	}
 
 	merge(data, newData) {
@@ -107,7 +109,7 @@ class ConfigMerger {
 			const group = data.match(/^{([^}]+)}$/);
 			const viewportSize = gameSettings.viewportSize || [0, 0];
 			if (group) {
-				const value = math.evaluate(group[1], {
+				const value = this.math.evaluate(group[1], {
 					... this.constants,
 					viewportWidth: viewportSize[0],
 					viewportHeight: viewportSize[1],
@@ -121,7 +123,7 @@ class ConfigMerger {
 			} else {
 				const groups = data.match(/{([^}]+)}/g);
 				if (groups) {
-					const values = groups.map(group => math.evaluate(group.match(/^{([^}]+)}$/)[1], {
+					const values = groups.map(group => this.math.evaluate(group.match(/^{([^}]+)}$/)[1], {
 						... this.constants,
 						viewportWidth: viewportSize[0],
 						viewportHeight: viewportSize[1],

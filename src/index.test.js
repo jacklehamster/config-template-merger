@@ -37,9 +37,7 @@ describe('ConfigMerger', function() {
 
   it('should merge with repeat', async function() {
     const fileUtils = new FileUtils(MockXhr);
-    const configMerger = new ConfigMerger(fileUtils, {
-      constant: 567,
-    });
+    const configMerger = new ConfigMerger(fileUtils);
 
     const source = {
       "multiField": {
@@ -48,9 +46,7 @@ describe('ConfigMerger', function() {
       },
     };
 
-    const result = await configMerger.process(source, "path/", {
-      viewportSize: [100, 200],
-    });
+    const result = await configMerger.process(source, "path/");
     expect(result.multiField[0].value).to.equal(0);
     expect(result.multiField[1].value).to.equal(2);
     expect(result.multiField[2].value).to.equal(4);
@@ -61,9 +57,7 @@ describe('ConfigMerger', function() {
 
   it('should merge with table', async function() {
     const fileUtils = new FileUtils(MockXhr);
-    const configMerger = new ConfigMerger(fileUtils, {
-      constant: 567,
-    });
+    const configMerger = new ConfigMerger(fileUtils);
 
     const source = {
       "multiTable": {
@@ -72,10 +66,27 @@ describe('ConfigMerger', function() {
       },
     };
 
-    const result = await configMerger.process(source, "path/", {
-    });
+    const result = await configMerger.process(source, "path/");
     expect(result.multiTable.length).to.equal(5*3*2);
     expect(result.multiTable[result.multiTable.length - 1].value).to.equal('2 / 4 / 1');
+    console.log("result", result);
+  });
+
+  it('should allow math import', async function() {
+    const fileUtils = new FileUtils(MockXhr);
+    const configMerger = new ConfigMerger(fileUtils);
+
+    configMerger.mathImport({
+      dbl: value => 2 * value,
+    })
+
+
+    const source = {
+      "test": "{dbl(13)}",
+    };
+
+    const result = await configMerger.process(source, "path/");
+    expect(result.test).to.equal(26);
     console.log("result", result);
   });
 });
