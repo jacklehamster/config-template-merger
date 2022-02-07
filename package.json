@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha src/index.test.js",
     "browserify": "browserify src/index.js -o public/config-merger.js",
-    "start": "npm run browserify && node demo.js"
+    "start": "node demo.js",
+    "build_start": "npm run browserify && node demo.js"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,7 @@
     "express": "^4.17.1",
     "express-static": "^1.2.6",
     "mathjs": "^10.1.0",
-    "string-template": "^1.0.0"
+    "string-template": "^1.0.0",
+    "icon-gen": "^3.0.0"
   }
 }

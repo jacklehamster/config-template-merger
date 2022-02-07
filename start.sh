@@ -2,4 +2,4 @@
 
 cd $(dirname $0)
 
-npm start
+npm run build_start

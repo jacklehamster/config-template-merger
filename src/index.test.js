@@ -1,6 +1,6 @@
 const expect = require('chai').expect;
 
-const { ConfigMerger } = require('./index.js');
+const { ConfigMerger, Evaluator } = require('./index.js');
 const { FileUtils } = require("dok-file-utils");
 
 const MockXMLHttpRequest = require('mock-xmlhttprequest');
@@ -88,5 +88,28 @@ describe('ConfigMerger', function() {
     const result = await configMerger.process(source, "path/");
     expect(result.test).to.equal(26);
     console.log("result", result);
+  });
+
+  it('should translate fields', async function() {
+    const fileUtils = new FileUtils(MockXhr);
+    const configMerger = new ConfigMerger(fileUtils);
+    const result = await configMerger.process({
+      "test{1 + 3}": "{3 + 4}"
+    }, "path/");
+    expect(result.test4).to.equal(7);
+    console.log("result", result);
+  });
+});
+
+
+describe('Evaluator', function() {
+  it('should evaluate', async function() {
+    const evaluator = new Evaluator();
+
+    expect(evaluator.evaluate("a + b", {a: 5, b: 4})).to.equal("a + b");
+    expect(evaluator.evaluate("{a + b}", {a: 5, b: 4})).to.equal(9);
+    expect(evaluator.evaluate("=> {a + b} <=", {a: 5, b: 4})).to.equal("=> 9 <=");
+    expect(evaluator.evaluate("=> {{a + b}} <=", {a: 5, b: 4})).to.equal("=> {a + b} <=");
+    expect(evaluator.evaluate("{{a + b}} = {a + b}", {a: 5, b: 4})).to.equal("{a + b} = 9");
   });
 });

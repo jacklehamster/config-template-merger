@@ -1,7 +1,5 @@
 const { FileUtils } = require("dok-file-utils");
-const {create, all} = require('mathjs');
-const format = require("string-template");
-
+const { Evaluator } = require("./evaluator");
 
 class ConfigMerger {
 	constructor(fileUtils, constants) {
@@ -13,11 +11,11 @@ class ConfigMerger {
 			repeat: true,
 			table: true,
 		};
-		this.math = create(all);
+		this.evaluator = new Evaluator();
 	}
 
 	mathImport(config) {
-		this.math.import(config);
+		this.evaluator.mathImport(config);
 	}
 
 	async process(data, gamePath, gameSettings) {
@@ -92,54 +90,39 @@ class ConfigMerger {
 						}
 					}
 				}
-				return Promise.all(
-					dimensions.map(coordinates => this.translate(data, gameSettings, index, coordinates)));
+				return Promise.all(dimensions.map(coordinates => this.translate(data, gameSettings, index, coordinates)));
 			}
 			const translatedData = {};
 
-			for (let a in data) {
-				if (!this.ignoredTags[a]) {
-					translatedData[a] = await this.translate(data[a], gameSettings, index, coordinates);
+			for (let field in data) {
+				const translatedField = this.evaluateData(field, gameSettings, index, coordinates);
+				if (!this.ignoredTags[translatedField]) {
+					translatedData[translatedField] = await this.translate(data[field], gameSettings, index, coordinates);
 				}
 			}
 			return translatedData;
 		}
 
-		if (typeof(data)==="string") {
-			const group = data.match(/^{([^}]+)}$/);
-			const viewportSize = gameSettings.viewportSize || [0, 0];
-			if (group) {
-				const value = this.math.evaluate(group[1], {
-					... this.constants,
-					viewportWidth: viewportSize[0],
-					viewportHeight: viewportSize[1],
-					index: index ?? 0,
-					random: Math.random(),
-					row: coordinates ? coordinates[0] : 0,
-					col: coordinates ? coordinates[1] : 0,
-					dim: coordinates ? coordinates[2] : 0,
-				});
-				return value;
-			} else {
-				const groups = data.match(/{([^}]+)}/g);
-				if (groups) {
-					const values = groups.map(group => this.math.evaluate(group.match(/^{([^}]+)}$/)[1], {
-						... this.constants,
-						viewportWidth: viewportSize[0],
-						viewportHeight: viewportSize[1],
-						index: index ?? 0,
-						random: Math.random(),
-						row: coordinates ? coordinates[0] : 0,
-						col: coordinates ? coordinates[1] : 0,
-						dim: coordinates ? coordinates[2] : 0,
-					}));
-					return format(data.split(/{[^}]+}/g).map((text, index) => {
-						return `${text}{${index}}`;
-					}).join(""), values.concat(""));
-				}
-			}
+		return this.evaluateData(data, gameSettings, index, coordinates);
+	}
+
+	evaluateData(data, gameSettings, index, coordinates) {
+		if (typeof(data)!=="string") {
+			return data;
 		}
-		return data;
+		const viewportSize = gameSettings.viewportSize || [0, 0];
+		const extra = {
+			... this.constants,
+			viewportWidth: viewportSize[0],
+			viewportHeight: viewportSize[1],
+			index: index ?? 0,
+			random: Math.random(),
+			row: coordinates ? coordinates[0] : 0,
+			col: coordinates ? coordinates[1] : 0,
+			dim: coordinates ? coordinates[2] : 0,
+		};
+
+		return this.evaluator.evaluate(data, extra);
 	}
 }
 

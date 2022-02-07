@@ -7,7 +7,7 @@
 	});
 
 	function process() {
-		const data = JSON.parse(document.getElementById("source-data").textContent);
+		const data = JSON.parse(document.getElementById("source-data").value);
 		console.log(data);
 		configMerger.process(data, "", {})
 		.then(data => JSON.stringify(data, null, "  "))
@@ -24,11 +24,11 @@ Templates
 	<div style="border: 1px solid black; flex: 1; height: 50px" id="template3"></div>
 	<script>
 		const fileUtils = new FileUtils();
-		fileUtils.load("template1.json").then(data => JSON.stringify(data, null, "\t"))
+		fileUtils.load("template1.json").then(data => JSON.stringify(data, null, "   "))
 		.then(data => document.getElementById("template1").textContent = data);
-		fileUtils.load("template2.json").then(data => JSON.stringify(data, null, "\t"))
+		fileUtils.load("template2.json").then(data => JSON.stringify(data, null, "   "))
 		.then(data => document.getElementById("template2").textContent = data);
-		fileUtils.load("template3.json").then(data => JSON.stringify(data, null, "\t"))
+		fileUtils.load("template3.json").then(data => JSON.stringify(data, null, "   "))
 		.then(data => document.getElementById("template3").textContent = data);
 	</script>
 </div>
@@ -44,6 +44,7 @@ Code:
     "template2",
     "template3"
   ],
+  "evaluator{1 + 2}": "{{1 + 2}} = {1 + 2}",
   "initialData": 123
 }
 	</textarea>

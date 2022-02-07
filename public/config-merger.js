@@ -9045,7 +9045,7 @@ function throwNoMatrix() {
 function throwNoFraction(x) {
   throw new Error("Cannot convert value ".concat(x, " into a Fraction, no class 'Fraction' provided."));
 }
-},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/map.js":942,"../../utils/number.js":944,"@babel/runtime/helpers/interopRequireDefault":8,"typed-function":961}],33:[function(require,module,exports){
+},{"../../utils/factory.js":937,"../../utils/is.js":939,"../../utils/map.js":942,"../../utils/number.js":944,"@babel/runtime/helpers/interopRequireDefault":8,"typed-function":962}],33:[function(require,module,exports){
 "use strict";
 
 var _typeof = require("@babel/runtime/helpers/typeof");
@@ -42173,11 +42173,14 @@ var createSimplify = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
    * - [Symbolic computation - Simplification (Wikipedia)](https://en.wikipedia.org/wiki/Symbolic_computation#Simplification)
    *
    *  An optional `options` argument can be passed as last argument of `simplify`.
-   *  There is currently one option available:
-   *  - `exactFractions`: a boolean which is `true` by default.
-   *  - `fractionsLimit`: when `exactFractions` is true, a fraction will be returned
-   *    only when both numerator and denominator are smaller than `fractionsLimit`.
-   *    Default value is 10000.
+   *  Currently available options (defaults in parentheses):
+   *  - `consoleDebug` (false): whether to write the expression being simplified
+        and any changes to it, along with the rule responsible, to console
+   *  - `exactFractions` (true): whether to try to convert all constants to
+        exact rational numbers.
+   *  - `fractionsLimit` (10000): when `exactFractions` is true, constants will
+        be expressed as fractions only when both numerator and denominator
+        are smaller than `fractionsLimit`.
    *
    * Syntax:
    *
@@ -42248,6 +42251,7 @@ var createSimplify = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
       return this(expr, rules, (0, _map.createMap)(scope), options);
     },
     'Node, Array, Map, Object': function NodeArrayMapObject(expr, rules, scope, options) {
+      var debug = options.consoleDebug;
       rules = _buildRules(rules);
       var res = resolve(expr, scope);
       res = removeParens(res);
@@ -42260,12 +42264,33 @@ var createSimplify = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
         visited[str] = true;
         _lastsym = 0; // counter for placeholder symbols
 
+        var laststr = str;
+        if (debug) console.log('Working on: ', str);
+
         for (var i = 0; i < rules.length; i++) {
+          var rulestr = '';
+
           if (typeof rules[i] === 'function') {
             res = rules[i](res, options);
+            if (debug) rulestr = rules[i].name;
           } else {
             flatten(res);
             res = applyRule(res, rules[i]);
+
+            if (debug) {
+              rulestr = "".concat(rules[i].l.toString(), " -> ").concat(rules[i].r.toString());
+            }
+          }
+
+          if (debug) {
+            var newstr = res.toString({
+              parenthesis: 'all'
+            });
+
+            if (newstr !== laststr) {
+              console.log('Applying', rulestr, 'produced', newstr);
+              laststr = newstr;
+            }
           }
 
           unflattenl(res); // using left-heavy binary tree here since custom rule functions may expect it
@@ -42349,18 +42374,7 @@ var createSimplify = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
   {
     l: 'n/n1',
     r: 'n*n1^-1'
-  }, // remove parenthesis in the case of negating a quantity
-  {
-    l: 'n1 + (n2 + n3)*(-1)',
-    r: 'n1 + n2*(-1) + n3*(-1)'
-  }, // subsume resulting -1 into constants where possible
-  {
-    l: '(-1) * c',
-    r: '-c'
-  }, {
-    l: '(-1) * (-c)',
-    r: 'c'
-  }, // expand nested exponentiation
+  }, simplifyConstant, // expand nested exponentiation
   {
     l: '(n ^ n1) ^ n2',
     r: 'n ^ (n1 * n2)'
@@ -42392,11 +42406,19 @@ var createSimplify = /* #__PURE__ */(0, _factory.factory)(name, dependencies, fu
   {
     l: 'n*c + c',
     r: '(n+1)*c'
-  }, simplifyConstant, {
+  }, // remove parenthesis in the case of negating a quantity
+  // (It might seem this rule should precede collecting like terms,
+  // but putting it after gives another chance of noticing like terms,
+  // and any new like terms produced by this will be collected
+  // on the next pass through all the rules.)
+  {
+    l: 'n1 + (n2 + n3)*(-1)',
+    r: 'n1 + n2*(-1) + n3*(-1)'
+  }, // make factors positive (and undo 'make non-constant terms positive')
+  {
     l: '(-n)*n1',
     r: '-(n*n1)'
-  }, // make factors positive (and undo 'make non-constant terms positive')
-  // final ordering of constants
+  }, // final ordering of constants
   {
     l: 'c+v',
     r: 'v+c',
@@ -84350,7 +84372,7 @@ function mixin(obj) {
   obj.emit = emitter.emit.bind(emitter);
   return obj;
 }
-},{"@babel/runtime/helpers/interopRequireDefault":8,"tiny-emitter":960}],937:[function(require,module,exports){
+},{"@babel/runtime/helpers/interopRequireDefault":8,"tiny-emitter":961}],937:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -87230,7 +87252,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.version = void 0;
-var version = '10.1.0'; // Note: This file is automatically generated when building math.js.
+var version = '10.1.1'; // Note: This file is automatically generated when building math.js.
 // Changes made in this file will be overwritten.
 
 exports.version = version;
@@ -88947,6 +88969,44 @@ if ((typeof module) == 'object' && module.exports) {
 );
 
 },{"crypto":18}],960:[function(require,module,exports){
+var nargs = /\{([0-9a-zA-Z_]+)\}/g
+
+module.exports = template
+
+function template(string) {
+    var args
+
+    if (arguments.length === 2 && typeof arguments[1] === "object") {
+        args = arguments[1]
+    } else {
+        args = new Array(arguments.length - 1)
+        for (var i = 1; i < arguments.length; ++i) {
+            args[i - 1] = arguments[i]
+        }
+    }
+
+    if (!args || !args.hasOwnProperty) {
+        args = {}
+    }
+
+    return string.replace(nargs, function replaceArg(match, i, index) {
+        var result
+
+        if (string[index - 1] === "{" &&
+            string[index + match.length] === "}") {
+            return i
+        } else {
+            result = args.hasOwnProperty(i) ? args[i] : null
+            if (result === null || result === undefined) {
+                return ""
+            }
+
+            return result
+        }
+    })
+}
+
+},{}],961:[function(require,module,exports){
 function E () {
   // Keep this empty so it's easier to inherit from
   // (via https://github.com/lipsmack from https://github.com/scottcorgan/tiny-emitter/issues/3)
@@ -89015,7 +89075,7 @@ E.prototype = {
 module.exports = E;
 module.exports.TinyEmitter = E;
 
-},{}],961:[function(require,module,exports){
+},{}],962:[function(require,module,exports){
 /**
  * typed-function
  *
@@ -90408,21 +90468,29 @@ module.exports.TinyEmitter = E;
   return create();
 }));
 
-},{}],962:[function(require,module,exports){
+},{}],963:[function(require,module,exports){
 const { FileUtils } = require("dok-file-utils");
-const math = require('mathjs');
+const { Evaluator } = require("./evaluator");
 
 class ConfigMerger {
 	constructor(fileUtils, constants) {
 		this.fileUtils = fileUtils || new FileUtils();
 		this.constants = constants || {};
+		this.ignoredTags = {
+			template: true,
+			templates: true,
+			repeat: true,
+			table: true,
+		};
+		this.evaluator = new Evaluator();
+	}
+
+	mathImport(config) {
+		this.evaluator.mathImport(config);
 	}
 
 	async process(data, gamePath, gameSettings) {
-		if (!gameSettings) {
-			throw new Error("gamePath and gameSettings are required.");
-		}
-		return this.translate(await this.applyTemplates(data, gamePath || ""), gameSettings);
+		return this.translate(await this.applyTemplates(data, gamePath || ""), gameSettings||{});
 	}
 
 	merge(data, newData) {
@@ -90466,11 +90534,11 @@ class ConfigMerger {
 		return translatedData;
 	}
 
-	async translate(data, gameSettings, index) {
+	async translate(data, gameSettings, index, coordinates) {
 		if (!data) {
 			return data;
 		} else if (Array.isArray(data)) {
-			return Promise.all(data.map(d => this.translate(d, gameSettings, index)));
+			return Promise.all(data.map(d => this.translate(d, gameSettings, index, coordinates)));
 		} else if (typeof(data) === "object") {
 			if (data.IGNORE) {
 				return null;
@@ -90478,33 +90546,54 @@ class ConfigMerger {
 			if (data.repeat && (typeof index === "undefined")) {
 				return Promise.all(
 					new Array(data.repeat).fill(null)
-					.map((_, index) => this.translate(data, gameSettings, index)));
+						.map((_,index) => index)
+						.map(index => this.translate(data, gameSettings, index, coordinates)));
+			}
+			if (data.table && (typeof coordinates === "undefined")) {
+				const rows = data.table[0] || 1;
+				const cols = data.table[1] || 1;
+				const dims = data.table[2] || 1;
+				const dimensions = [];
+				for (let row = 0; row < rows; row++) {
+					for (let col = 0; col < cols; col++) {
+						for (let dim = 0; dim < dims; dim++) {
+							dimensions.push([col, row, dim]);
+						}
+					}
+				}
+				return Promise.all(dimensions.map(coordinates => this.translate(data, gameSettings, index, coordinates)));
 			}
 			const translatedData = {};
 
-			for (let a in data) {
-				if (a !== "templates" && a !== "template" && a !== "repeat") {
-					translatedData[a] = await this.translate(data[a], gameSettings, index);
+			for (let field in data) {
+				const translatedField = this.evaluateData(field, gameSettings, index, coordinates);
+				if (!this.ignoredTags[translatedField]) {
+					translatedData[translatedField] = await this.translate(data[field], gameSettings, index, coordinates);
 				}
 			}
 			return translatedData;
 		}
 
-		if (typeof(data)==="string") {
-			const group = data.match(/^{([^}]+)}$/);
-			if (group) {
-				const viewportSize = gameSettings.viewportSize || [0, 0];
-				const value = math.evaluate(group[1], {
-					... this.constants,
-					viewportWidth: viewportSize[0],
-					viewportHeight: viewportSize[1],
-					index: index ?? 0,
-					random: Math.random(),
-				});
-				return value;
-			}
+		return this.evaluateData(data, gameSettings, index, coordinates);
+	}
+
+	evaluateData(data, gameSettings, index, coordinates) {
+		if (typeof(data)!=="string") {
+			return data;
 		}
-		return data;
+		const viewportSize = gameSettings.viewportSize || [0, 0];
+		const extra = {
+			... this.constants,
+			viewportWidth: viewportSize[0],
+			viewportHeight: viewportSize[1],
+			index: index ?? 0,
+			random: Math.random(),
+			row: coordinates ? coordinates[0] : 0,
+			col: coordinates ? coordinates[1] : 0,
+			dim: coordinates ? coordinates[2] : 0,
+		};
+
+		return this.evaluator.evaluate(data, extra);
 	}
 }
 
@@ -90513,11 +90602,58 @@ module.exports = {
 };
 
 globalThis.ConfigMerger = ConfigMerger;
-},{"dok-file-utils":23,"mathjs":873}],963:[function(require,module,exports){
+},{"./evaluator":964,"dok-file-utils":23}],964:[function(require,module,exports){
+const {create, all} = require('mathjs');
+const format = require("string-template");
+
+class Evaluator {
+	constructor() {
+		this.math = create(all);
+	}
+
+	mathImport(config) {
+		this.math.import(config);
+	}
+
+	evaluateEquation(string, extra) {
+		if (/^{([^}]+)$/.test(string)) {
+			return string;
+		}
+		return this.math.evaluate(string, extra);
+	}
+
+	evaluate(data, extra) {
+		if (typeof(data) !== "string") {
+			return data;
+		}
+
+		const groups = data.match(/{([^}]+)}/g);
+		if (groups) {
+			const values = groups.map(group => this.evaluateEquation(group.match(/^{([^}]+)}$/)[1], extra));
+			const chunks = data.split(/{[^}]+}/g);
+
+			if (chunks.length === 2 && !chunks[0].length && !chunks[1].length) {
+				return values[0];
+			}
+
+			return format(data.split(/{[^}]+}/g).map((text, index) =>  `${text}{${index}}`).join(""), values.concat(""));
+		}
+
+		return data;
+	}
+}
+
+
+module.exports = {
+	Evaluator,
+};
+},{"mathjs":873,"string-template":960}],965:[function(require,module,exports){
 const { ConfigMerger } = require("./config-merger");
+const { Evaluator } = require("./evaluator");
 
 module.exports = {
 	ConfigMerger,
+	Evaluator,
 };
 
-},{"./config-merger":962}]},{},[963]);
+},{"./config-merger":963,"./evaluator":964}]},{},[965]);
