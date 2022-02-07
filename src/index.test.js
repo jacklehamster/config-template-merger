@@ -112,4 +112,20 @@ describe('Evaluator', function() {
     expect(evaluator.evaluate("=> {{a + b}} <=", {a: 5, b: 4})).to.equal("=> {a + b} <=");
     expect(evaluator.evaluate("{{a + b}} = {a + b}", {a: 5, b: 4})).to.equal("{a + b} = 9");
   });
+
+  it('should evaluate using config', async function() {
+    const evaluator = new Evaluator({
+      a: 5, b: 4,
+    });
+
+    expect(evaluator.evaluate("a + b")).to.equal("a + b");
+    expect(evaluator.evaluate("{a + b}")).to.equal(9);
+    expect(evaluator.evaluate("=> {a + b} <=")).to.equal("=> 9 <=");
+    expect(evaluator.evaluate("=> {{a + b}} <=")).to.equal("=> {a + b} <=");
+    expect(evaluator.evaluate("{{a + b}} = {a + b}")).to.equal("{a + b} = 9");
+
+    expect(evaluator.evaluate("{a + b}", {a:4})).to.equal(8);
+    expect(evaluator.evaluate("=> {a + b} <=", {a:4})).to.equal("=> 8 <=");
+    expect(evaluator.evaluate("{{a + b}} = {a + b}", {a:4})).to.equal("{a + b} = 8");
+  });
 });

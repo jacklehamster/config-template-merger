@@ -4,14 +4,13 @@ const { Evaluator } = require("./evaluator");
 class ConfigMerger {
 	constructor(fileUtils, constants) {
 		this.fileUtils = fileUtils || new FileUtils();
-		this.constants = constants || {};
 		this.ignoredTags = {
 			template: true,
 			templates: true,
 			repeat: true,
 			table: true,
 		};
-		this.evaluator = new Evaluator();
+		this.evaluator = new Evaluator(constants);
 	}
 
 	mathImport(config) {
@@ -112,7 +111,6 @@ class ConfigMerger {
 		}
 		const viewportSize = gameSettings.viewportSize || [0, 0];
 		const extra = {
-			... this.constants,
 			viewportWidth: viewportSize[0],
 			viewportHeight: viewportSize[1],
 			index: index ?? 0,

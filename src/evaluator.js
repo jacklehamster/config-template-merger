@@ -2,8 +2,9 @@ const {create, all} = require('mathjs');
 const format = require("string-template");
 
 class Evaluator {
-	constructor() {
+	constructor(config) {
 		this.math = create(all);
+		this.config = config || {};
 	}
 
 	mathImport(config) {
@@ -14,7 +15,8 @@ class Evaluator {
 		if (/^{([^}]+)$/.test(string)) {
 			return string;
 		}
-		return this.math.evaluate(string, extra);
+		const configForEvaluator = extra ? {...this.config, ...extra} : this.config;
+		return this.math.evaluate(string, configForEvaluator);
 	}
 
 	evaluate(data, extra) {
