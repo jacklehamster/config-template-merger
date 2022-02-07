@@ -1,6 +1,6 @@
 {
   "name": "config-template-merger",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Utility for merging config json from various files",
   "main": "src/index.js",
   "scripts": {
