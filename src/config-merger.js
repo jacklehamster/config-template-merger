@@ -28,9 +28,15 @@ class ConfigMerger {
 		if (!data) {
 			data = Array.isArray(newData) ? [] : {};
 		}
-		for (let a in newData) {
-			const obj = newData[a];
-			data[a] = this.merge(data[a], obj);
+		for (let key in newData) {
+	        if (!newData.hasOwnProperty(key)) {
+	        	continue;
+	        }
+	        if (key === "__proto__" || key === "constructor") {
+	        	continue;
+	        }
+			const obj = newData[key];
+			data[key] = this.merge(data[key], obj);
 		}
 		return data;
 	}

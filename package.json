@@ -3,6 +3,9 @@
   "version": "1.0.14",
   "description": "Utility for merging config json from various files",
   "main": "src/index.js",
+  "engines": {
+    "node": ">=14.x"
+  },
   "scripts": {
     "test": "mocha src/index.test.js",
     "browserify": "browserify src/index.js -o public/config-merger.js",

@@ -6800,7 +6800,7 @@ module.exports = function (str) {
 };
 },{}],25:[function(require,module,exports){
 /**
- * @license Fraction.js v4.1.2 23/05/2021
+ * @license Fraction.js v4.1.3 23/05/2021
  * https://www.xarg.org/2014/03/rational-numbers-in-javascript/
  *
  * Copyright (c) 2021, Robert Eisele (robert@xarg.org)
@@ -90499,9 +90499,15 @@ class ConfigMerger {
 		if (!data) {
 			data = Array.isArray(newData) ? [] : {};
 		}
-		for (let a in newData) {
-			const obj = newData[a];
-			data[a] = this.merge(data[a], obj);
+		for (let key in newData) {
+	        if (!newData.hasOwnProperty(key)) {
+	        	continue;
+	        }
+	        if (key === "__proto__" || key === "constructor") {
+	        	continue;
+	        }
+			const obj = newData[key];
+			data[key] = this.merge(data[key], obj);
 		}
 		return data;
 	}
