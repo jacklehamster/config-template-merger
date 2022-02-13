@@ -26,14 +26,15 @@
     "browserify": "^17.0.0",
     "chai": "^4.2.0",
     "mocha": "^9.1.4",
-    "mock-xmlhttprequest": "^7.0.4"
+    "mock-xmlhttprequest": "^7.0.4",
+    "np": "^7.6.0"
   },
   "dependencies": {
     "dok-file-utils": "^1.0.6",
     "express": "^4.17.1",
     "express-static": "^1.2.6",
+    "icon-gen": "^3.0.0",
     "mathjs": "^10.1.0",
-    "string-template": "^1.0.0",
-    "icon-gen": "^3.0.0"
+    "string-template": "^1.0.0"
   }
 }
