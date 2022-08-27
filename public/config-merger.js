@@ -92812,7 +92812,6 @@ class ConfigMerger {
 	}
 
 	async loadDataIfNeeded(data, gamePath) {
-		console.log("loadIfNeeded", data, gamePath);
 		if (data && typeof (data) === "object" && data.reference) {
 			console.log(this.fixPath(data.reference, gamePath));
 			const result = await this.fileUtils.load(this.fixPath(data.reference, gamePath), "text");
