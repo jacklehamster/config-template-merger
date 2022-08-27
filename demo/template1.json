@@ -1,3 +1,5 @@
 {
-	"field": 123
+	"field": 123,
+	"data": {	"reference": "data/data.txt" },
+	"customObject": { "reference": "data/custom-object.json" }
 }

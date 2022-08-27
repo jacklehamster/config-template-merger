@@ -18,23 +18,23 @@ class ConfigMerger {
 	}
 
 	async process(data, gamePath, gameSettings) {
-		return this.translate(await this.applyTemplates(data, gamePath || ""), gameSettings||{});
+		return this.translate(await this.applyTemplates(data, gamePath || ""), gameSettings ?? {});
 	}
 
 	merge(data, newData) {
-		if (!newData || typeof(newData) !== "object") {
+		if (!newData || typeof (newData) !== "object") {
 			return newData;
 		}
 		if (!data) {
 			data = Array.isArray(newData) ? [] : {};
 		}
 		for (let key in newData) {
-	        if (!newData.hasOwnProperty(key)) {
-	        	continue;
-	        }
-	        if (key === "__proto__" || key === "constructor") {
-	        	continue;
-	        }
+			if (!newData.hasOwnProperty(key)) {
+				continue;
+			}
+			if (key === "__proto__" || key === "constructor") {
+				continue;
+			}
 			const obj = newData[key];
 			data[key] = this.merge(data[key], obj);
 		}
@@ -46,16 +46,18 @@ class ConfigMerger {
 			return path;
 		}
 		const gameDir = gamePath.split("/").slice(0, -1).join("/");
-		return gameDir ? `${gameDir}/${path}`: path;
+		return gameDir ? `${gameDir}/${path}` : path;
 	}
 
 	async applyTemplates(data, gamePath) {
-		if (!data || typeof(data) !== "object" || Array.isArray(data)) {
+		data = await this.loadDataIfNeeded(data, gamePath);
+
+		if (!data || typeof (data) !== "object" || Array.isArray(data)) {
 			return data;
 		}
 		const translatedData = {};
 		if (data.templates || data.template) {
-			const allTemplates = (data.templates||[]).concat(data.template ? [data.template] : []);
+			const allTemplates = (data.templates || []).concat(data.template ? [data.template] : []);
 			const templateObjects = await Promise.all(allTemplates.map(path => this.fileUtils.load(`${this.fixPath(path, gamePath)}.json`)));
 			templateObjects.forEach(template => this.merge(translatedData, template));
 		}
@@ -73,14 +75,14 @@ class ConfigMerger {
 			return data;
 		} else if (Array.isArray(data)) {
 			return Promise.all(data.map(d => this.translate(d, gameSettings, index, coordinates)));
-		} else if (typeof(data) === "object") {
+		} else if (typeof (data) === "object") {
 			if (data.IGNORE) {
 				return null;
 			}
 			if (data.repeat && (typeof index === "undefined")) {
 				return Promise.all(
 					new Array(data.repeat).fill(null)
-						.map((_,index) => index)
+						.map((_, index) => index)
 						.map(index => this.translate(data, gameSettings, index, coordinates)));
 			}
 			if (data.table && (typeof coordinates === "undefined")) {
@@ -111,8 +113,22 @@ class ConfigMerger {
 		return this.evaluateData(data, gameSettings, index, coordinates);
 	}
 
+	async loadDataIfNeeded(data, gamePath) {
+		console.log("loadIfNeeded", data, gamePath);
+		if (data && typeof (data) === "object" && data.reference) {
+			console.log(this.fixPath(data.reference, gamePath));
+			const result = await this.fileUtils.load(this.fixPath(data.reference, gamePath), "text");
+			if (data.reference.match(/.(json)$/i)) {
+				return JSON.parse(result);
+			} else {
+				return result;
+			}
+		}
+		return data;
+	}
+
 	evaluateData(data, gameSettings, index, coordinates) {
-		if (typeof(data)!=="string") {
+		if (typeof (data) !== "string") {
 			return data;
 		}
 		const viewportSize = gameSettings.viewportSize || [0, 0];
