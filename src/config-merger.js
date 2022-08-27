@@ -119,12 +119,27 @@ class ConfigMerger {
 			console.log(this.fixPath(data.reference, gamePath));
 			const result = await this.fileUtils.load(this.fixPath(data.reference, gamePath), "text");
 			if (data.reference.match(/.(json)$/i)) {
-				return JSON.parse(result);
+				return this.replaceParams(JSON.parse(result), data.params);
 			} else {
 				return result;
 			}
 		}
 		return data;
+	}
+
+	replaceParams(result, params) {
+		if (typeof (result) === "string" && params[result]) {
+			return params[result];
+		}
+		if (!result || typeof (result) !== 'object' || !params) {
+			return result;
+		}
+		for (let i in result) {
+			if (result.hasOwnProperty(i)) {
+				result[i] = this.replaceParams(result[i], params);
+			}
+		}
+		return result;
 	}
 
 	evaluateData(data, gameSettings, index, coordinates) {

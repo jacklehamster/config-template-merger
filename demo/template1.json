@@ -1,5 +1,5 @@
 {
 	"field": 123,
 	"data": {	"reference": "data/data.txt" },
-	"customObject": { "reference": "data/custom-object.json" }
+	"customObject": { "reference": "data/custom-object.json", "params": { "[param1]": 12345 } }
 }
