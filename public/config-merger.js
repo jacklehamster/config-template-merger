@@ -2006,7 +2006,7 @@ try {
 
 
   /*!
-   *  decimal.js v10.4.0
+   *  decimal.js v10.4.1
    *  An arbitrary-precision Decimal type for JavaScript.
    *  https://github.com/MikeMcl/decimal.js
    *  Copyright (c) 2022 Michael Mclaughlin <M8ch88l@gmail.com>
@@ -92761,8 +92761,17 @@ class ConfigMerger {
 		}
 		this.merge(translatedData, data);
 
-		for (let a in translatedData) {
-			translatedData[a] = await this.applyTemplates(translatedData[a], gamePath);
+		const entries = Object.entries(translatedData);
+
+		const referenceEntries = entries.filter(([, value]) => typeof value === "object" && value.reference);
+		const otherEntries = entries.filter(([, value]) => typeof value !== "object" || !value.reference);
+
+		for (const [key, value] of referenceEntries) {
+			translatedData[key] = await this.applyTemplates(value, gamePath);
+		}
+
+		for (const [key, value] of otherEntries) {
+			translatedData[key] = await this.applyTemplates(value, gamePath);
 		}
 
 		return translatedData;
