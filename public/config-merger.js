@@ -92763,8 +92763,8 @@ class ConfigMerger {
 
 		const entries = Object.entries(translatedData);
 
-		const referenceEntries = entries.filter(([, value]) => value && typeof value === "object" && value.reference);
-		const otherEntries = entries.filter(([, value]) => typeof value !== "object" || !value.reference);
+		const referenceEntries = entries.filter(([, value]) => typeof value === "object" && value?.reference);
+		const otherEntries = entries.filter(([, value]) => typeof value !== "object" || !value?.reference);
 
 		for (const [key, value] of referenceEntries) {
 			translatedData[key] = await this.applyTemplates(value, gamePath);
