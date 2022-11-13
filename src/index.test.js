@@ -13,29 +13,28 @@ MockXhr.onSend = (xhr) => {
   xhr.respond(200, responseHeaders, response);
 };
 
-describe('ConfigMerger', function() {
-  it('should merge configs', async function() {
-  	const fileUtils = new FileUtils(MockXhr);
-  	const configMerger = new ConfigMerger(fileUtils, {
-  		constant: 567,
-  	});
+describe('ConfigMerger', function () {
+  it('should merge configs', async function () {
+    const fileUtils = new FileUtils(MockXhr);
+    const configMerger = new ConfigMerger(fileUtils, {
+      constant: 567,
+    });
 
-  	const source = {
-  		"field1": 123,
-  		template: "test-template.json",
-  		"field3": "{constant * 10}",
-  	};
+    const source = {
+      "field1": 123,
+      template: "test-template.json",
+      "field3": "{constant * 10}",
+    };
 
-  	const result = await configMerger.process(source, "path/", {
-  		viewportSize: [100, 200],
-  	});
-  	expect(result.field1).to.equal(123);
-  	expect(result.field2).to.equal(345);
-  	expect(result.field3).to.equal(5670);
-  	console.log("result", result);
+    const result = await configMerger.process(source, "path/", {
+      viewportSize: [100, 200],
+    });
+    expect(result.field1).to.equal(123);
+    expect(result.field2).to.equal(345);
+    expect(result.field3).to.equal(5670);
   });
 
-  it('should merge with repeat', async function() {
+  it('should merge with repeat', async function () {
     const fileUtils = new FileUtils(MockXhr);
     const configMerger = new ConfigMerger(fileUtils);
 
@@ -52,10 +51,9 @@ describe('ConfigMerger', function() {
     expect(result.multiField[2].value).to.equal(4);
     expect(result.multiField[3].value).to.equal(6);
     expect(result.multiField[4].value).to.equal(8);
-    console.log("result", result);
   });
 
-  it('should merge with table', async function() {
+  it('should merge with table', async function () {
     const fileUtils = new FileUtils(MockXhr);
     const configMerger = new ConfigMerger(fileUtils);
 
@@ -67,12 +65,11 @@ describe('ConfigMerger', function() {
     };
 
     const result = await configMerger.process(source, "path/");
-    expect(result.multiTable.length).to.equal(5*3*2);
+    expect(result.multiTable.length).to.equal(5 * 3 * 2);
     expect(result.multiTable[result.multiTable.length - 1].value).to.equal('2 / 4 / 1');
-    console.log("result", result);
   });
 
-  it('should allow math import', async function() {
+  it('should allow math import', async function () {
     const fileUtils = new FileUtils(MockXhr);
     const configMerger = new ConfigMerger(fileUtils);
 
@@ -87,33 +84,31 @@ describe('ConfigMerger', function() {
 
     const result = await configMerger.process(source, "path/");
     expect(result.test).to.equal(26);
-    console.log("result", result);
   });
 
-  it('should translate fields', async function() {
+  it('should translate fields', async function () {
     const fileUtils = new FileUtils(MockXhr);
     const configMerger = new ConfigMerger(fileUtils);
     const result = await configMerger.process({
       "test{1 + 3}": "{3 + 4}"
     }, "path/");
     expect(result.test4).to.equal(7);
-    console.log("result", result);
   });
 });
 
 
-describe('Evaluator', function() {
-  it('should evaluate', async function() {
+describe('Evaluator', function () {
+  it('should evaluate', async function () {
     const evaluator = new Evaluator();
 
-    expect(evaluator.evaluate("a + b", {a: 5, b: 4})).to.equal("a + b");
-    expect(evaluator.evaluate("{a + b}", {a: 5, b: 4})).to.equal(9);
-    expect(evaluator.evaluate("=> {a + b} <=", {a: 5, b: 4})).to.equal("=> 9 <=");
-    expect(evaluator.evaluate("=> {{a + b}} <=", {a: 5, b: 4})).to.equal("=> {a + b} <=");
-    expect(evaluator.evaluate("{{a + b}} = {a + b}", {a: 5, b: 4})).to.equal("{a + b} = 9");
+    expect(evaluator.evaluate("a + b", { a: 5, b: 4 })).to.equal("a + b");
+    expect(evaluator.evaluate("{a + b}", { a: 5, b: 4 })).to.equal(9);
+    expect(evaluator.evaluate("=> {a + b} <=", { a: 5, b: 4 })).to.equal("=> 9 <=");
+    expect(evaluator.evaluate("=> {{a + b}} <=", { a: 5, b: 4 })).to.equal("=> {a + b} <=");
+    expect(evaluator.evaluate("{{a + b}} = {a + b}", { a: 5, b: 4 })).to.equal("{a + b} = 9");
   });
 
-  it('should evaluate using config', async function() {
+  it('should evaluate using config', async function () {
     const evaluator = new Evaluator({
       a: 5, b: 4,
     });
@@ -124,8 +119,38 @@ describe('Evaluator', function() {
     expect(evaluator.evaluate("=> {{a + b}} <=")).to.equal("=> {a + b} <=");
     expect(evaluator.evaluate("{{a + b}} = {a + b}")).to.equal("{a + b} = 9");
 
-    expect(evaluator.evaluate("{a + b}", {a:4})).to.equal(8);
-    expect(evaluator.evaluate("=> {a + b} <=", {a:4})).to.equal("=> 8 <=");
-    expect(evaluator.evaluate("{{a + b}} = {a + b}", {a:4})).to.equal("{a + b} = 8");
+    expect(evaluator.evaluate("{a + b}", { a: 4 })).to.equal(8);
+    expect(evaluator.evaluate("=> {a + b} <=", { a: 4 })).to.equal("=> 8 <=");
+    expect(evaluator.evaluate("{{a + b}} = {a + b}", { a: 4 })).to.equal("{a + b} = 8");
+  });
+
+  it('should translate references', async function () {
+    const fileUtils = new FileUtils(MockXhr);
+    const configMerger = new ConfigMerger(fileUtils);
+
+    const source = {
+      "ref": {
+        reference: "test-template.json"
+      }
+    };
+
+    const result = await configMerger.process(source, "path/");
+    expect(result.ref.field2).equal(345);
+  });
+
+  it('should translate references inside array items', async function () {
+    const fileUtils = new FileUtils(MockXhr);
+    const configMerger = new ConfigMerger(fileUtils);
+
+    const source = {
+      "ref": [
+        {
+          reference: "test-template.json"
+        },
+      ]
+    };
+
+    const result = await configMerger.process(source, "path/");
+    expect(result.ref[0].field2).equal(345);
   });
 });

@@ -52,9 +52,14 @@ class ConfigMerger {
 	async applyTemplates(data, gamePath) {
 		data = await this.loadDataIfNeeded(data, gamePath);
 
-		if (!data || typeof (data) !== "object" || Array.isArray(data)) {
+		if (Array.isArray(data)) {
+			return await Promise.all(data.map(async d => await this.applyTemplates(d, gamePath)));
+		}
+
+		if (!data || typeof (data) !== "object") {
 			return data;
 		}
+
 		const translatedData = {};
 		if (data.templates || data.template) {
 			const allTemplates = (data.templates || []).concat(data.template ? [data.template] : []);
@@ -64,6 +69,7 @@ class ConfigMerger {
 		this.merge(translatedData, data);
 
 		const entries = Object.entries(translatedData);
+
 
 		const referenceEntries = entries.filter(([, value]) => typeof value === "object" && value?.reference);
 		const otherEntries = entries.filter(([, value]) => typeof value !== "object" || !value?.reference);
