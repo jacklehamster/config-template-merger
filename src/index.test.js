@@ -147,10 +147,12 @@ describe('Evaluator', function () {
         {
           reference: "test-template.json"
         },
+        null,
       ]
     };
 
     const result = await configMerger.process(source, "path/");
     expect(result.ref[0].field2).equal(345);
+    expect(result.ref[1]).equal(null);
   });
 });
