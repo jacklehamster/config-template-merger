@@ -3,6 +3,7 @@
   "version": "1.0.34",
   "description": "Utility for merging config json from various files",
   "main": "src/index.js",
+  "private": true,
   "engines": {
     "node": ">=14.x"
   },
