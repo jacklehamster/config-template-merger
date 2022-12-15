@@ -138,6 +138,20 @@ describe('Evaluator', function () {
     expect(result.ref.field2).equal(345);
   });
 
+  it('should translate references and evaluate path', async function () {
+    const fileUtils = new FileUtils(MockXhr);
+    const configMerger = new ConfigMerger(fileUtils, { t: "test" });
+
+    const source = {
+      "ref": {
+        reference: "{t}-template.json"
+      }
+    };
+
+    const result = await configMerger.process(source, "path/");
+    expect(result.ref.field2).equal(345);
+  });
+
   it('should translate references inside array items', async function () {
     const fileUtils = new FileUtils(MockXhr);
     const configMerger = new ConfigMerger(fileUtils);
