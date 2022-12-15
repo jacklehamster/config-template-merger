@@ -6,14 +6,7 @@ const { FileUtils } = require("dok-file-utils");
 const MockXMLHttpRequest = require('mock-xmlhttprequest');
 const MockXhr = MockXMLHttpRequest.newMockXhr();
 
-// Mock JSON response
-MockXhr.onSend = (xhr) => {
-  const responseHeaders = { 'Content-Type': 'application/json' };
-  const response = '{ "field2": 345 }';
-  xhr.respond(200, responseHeaders, response);
-};
-
-describe('ConfigMerger', function () {
+describe('ConfigMerger', function () {  
   it('should merge configs', async function () {
     const fileUtils = new FileUtils(MockXhr);
     const configMerger = new ConfigMerger(fileUtils, {
@@ -98,6 +91,19 @@ describe('ConfigMerger', function () {
 
 
 describe('Evaluator', function () {
+  let lastUrl;
+  // Mock JSON response
+  MockXhr.onSend = (xhr) => {
+    lastUrl = xhr.url;
+    const responseHeaders = { 'Content-Type': 'application/json' };
+    const response = '{ "field2": 345 }';
+    xhr.respond(200, responseHeaders, response);
+  };
+
+  beforeEach(() => {
+    lastUrl = null;
+  });
+
   it('should evaluate', async function () {
     const evaluator = new Evaluator();
 
@@ -135,6 +141,7 @@ describe('Evaluator', function () {
     };
 
     const result = await configMerger.process(source, "path/");
+    expect(lastUrl).equal("path/test-template.json");
     expect(result.ref.field2).equal(345);
   });
 
@@ -149,6 +156,7 @@ describe('Evaluator', function () {
     };
 
     const result = await configMerger.process(source, "path/");
+    expect(lastUrl).equal("path/test-template.json");
     expect(result.ref.field2).equal(345);
   });
 
@@ -166,6 +174,7 @@ describe('Evaluator', function () {
     };
 
     const result = await configMerger.process(source, "path/");
+    expect(lastUrl).equal("path/test-template.json");
     expect(result.ref[0].field2).equal(345);
     expect(result.ref[1]).equal(null);
   });

@@ -130,11 +130,10 @@ class ConfigMerger {
 
 	async loadDataIfNeeded(data, gamePath) {
 		if (data && typeof (data) === "object" && data.reference) {
-			const d = this.evaluator.evaluate(data);
-
-			const result = await this.fileUtils.load(this.fixPath(d.reference, gamePath), "text");
-			if (d.reference.match(/.(json)$/i)) {
-				return this.replaceParams(JSON.parse(result), d.params);
+			const reference = this.evaluator.evaluate(data.reference);
+			const result = await this.fileUtils.load(this.fixPath(reference, gamePath), "text");
+			if (reference.match(/.(json)$/i)) {
+				return this.replaceParams(JSON.parse(result), data.params);
 			} else {
 				return result;
 			}
