@@ -162,6 +162,7 @@ class ConfigMerger {
 		}
 		const viewportSize = gameSettings.viewportSize || [0, 0];
 		const extra = {
+			...gameSettings,
 			viewportWidth: viewportSize[0],
 			viewportHeight: viewportSize[1],
 			index: index ?? 0,
