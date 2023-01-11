@@ -35,6 +35,7 @@
     "express-static": "^1.2.6",
     "icon-gen": "^3.0.0",
     "mathjs": "^11.5.0",
-    "string-template": "^1.0.0"
+    "string-template": "^1.0.0",
+    "uglify-js": "^3.17.4"
   }
 }

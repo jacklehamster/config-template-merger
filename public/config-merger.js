@@ -87345,7 +87345,10 @@ class ConfigMerger {
 	}
 
 	async process(data, gamePath, gameSettings) {
-		return this.translate(await this.applyTemplates(data, gamePath || ""), gameSettings ?? {});
+		this.passDataHack = data;
+		const dataTemplated = await this.applyTemplates(data, gamePath || "");
+		const result = await this.translate(dataTemplated, gameSettings ?? {});
+		return result;
 	}
 
 	merge(data, newData) {
@@ -87376,11 +87379,14 @@ class ConfigMerger {
 		return gameDir ? `${gameDir}/${path}` : path;
 	}
 
-	async applyTemplates(data, gamePath) {
-		data = await this.loadDataIfNeeded(data, gamePath);
+	async applyTemplates(passedData, gamePath) {
+		const data = await this.loadDataIfNeeded(passedData ?? this.passDataHack, gamePath);
 
 		if (Array.isArray(data)) {
-			return await Promise.all(data.map(async d => await this.applyTemplates(d, gamePath)));
+			return await Promise.all(data.map(async d => {
+				this.passDataHack = d;
+				return await this.applyTemplates(d, gamePath);
+			}));
 		}
 
 		if (!data || typeof (data) !== "object") {
@@ -87402,10 +87408,12 @@ class ConfigMerger {
 		const otherEntries = entries.filter(([, value]) => typeof value !== "object" || !value?.reference);
 
 		for (const [key, value] of referenceEntries) {
+			this.passDataHack = value;
 			translatedData[key] = await this.applyTemplates(value, gamePath);
 		}
 
 		for (const [key, value] of otherEntries) {
+			this.passDataHack = value;
 			translatedData[key] = await this.applyTemplates(value, gamePath);
 		}
 
@@ -87489,6 +87497,7 @@ class ConfigMerger {
 		}
 		const viewportSize = gameSettings.viewportSize || [0, 0];
 		const extra = {
+			...gameSettings,
 			viewportWidth: viewportSize[0],
 			viewportHeight: viewportSize[1],
 			index: index ?? 0,

@@ -1,4 +1,4 @@
-<script src="../public/config-merger.js"></script>
+<script src="../public/out.js"></script>
 <script src="https://unpkg.com/dok-file-utils/src/file-utils.js"></script>
 
 <script id="code-javascript">
@@ -8,7 +8,6 @@
 
 	function process() {
 		const data = JSON.parse(document.getElementById("source-data").value);
-		console.log(data);
 		configMerger.process(data, "", {})
 		.then(data => JSON.stringify(data, null, "  "))
 		.then(data => document.getElementById("output").textContent = data);
