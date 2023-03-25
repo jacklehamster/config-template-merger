@@ -18,13 +18,6 @@ app.get('/', (req, res, next) => {
 });
 app.use(serve(`${__dirname}`));
 
-icongen('icon.png', './', { })
-  .then((results) => {
-//    console.log(results)
-  })
-  .catch((err) => {
-    console.error(err)
-  })
 
 
   if (uglify) {
@@ -44,6 +37,23 @@ icongen('icon.png', './', { })
     fs.writeFileSync(`${publicFolder}/${filename}`, result.code);
     fs.writeFileSync(`${publicFolder}/${url}`, result.map);
   }
+
+const iconTimestampFile = "./icon-timestamp.txt";
+const iconTimestamp = fs.existsSync(iconTimestampFile) ? fs.readFileSync(iconTimestampFile).toString() : 0;
+
+const { mtime: iconModified } = fs.statSync('./icon.png');
+if (`${iconModified.getTime()}` !== iconTimestamp) {
+  icongen('icon.png', './public')
+    .then((results) => {
+      console.log(`${results.length} icons generated.`);
+    })
+    .catch((err) => {
+      console.error(err)
+    });
+  fs.writeFileSync(iconTimestampFile, `${iconModified.getTime()}`);
+}
+
+
 
 const server = app.listen(PORT, () => {
 	console.log('Demo running at %s', PORT);

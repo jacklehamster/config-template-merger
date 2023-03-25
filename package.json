@@ -30,10 +30,11 @@
     "np": "^7.6.3"
   },
   "dependencies": {
-    "dok-file-utils": "^1.0.6",
+    "dok-file-utils": "^1.0.17",
     "express": "^4.17.1",
     "express-static": "^1.2.6",
     "icon-gen": "^3.0.0",
+    "js-yaml": "^4.1.0",
     "mathjs": "^11.5.0",
     "string-template": "^1.0.0",
     "uglify-js": "^3.17.4"

@@ -1,9 +1,13 @@
 const { FileUtils } = require("dok-file-utils");
 const { Evaluator } = require("./evaluator");
+const jsyaml = require("js-yaml");
 
 class ConfigMerger {
 	constructor(fileUtils, constants) {
 		this.fileUtils = fileUtils || new FileUtils();
+
+		this.addYamlProcessor(this.fileUtils);
+
 		this.ignoredTags = {
 			template: true,
 			templates: true,
@@ -11,6 +15,16 @@ class ConfigMerger {
 			table: true,
 		};
 		this.evaluator = new Evaluator(constants);
+	}
+
+	addYamlProcessor(fileUtils) {
+		const yamlProcessor = {
+			responseType: "text",
+			process: (data) => jsyaml.load(data),
+		};
+
+		fileUtils.addExtensionProcessor("yml", yamlProcessor);
+		fileUtils.addExtensionProcessor("yaml", yamlProcessor);
 	}
 
 	mathImport(config) {
@@ -139,9 +153,11 @@ class ConfigMerger {
 	async loadDataIfNeeded(data, gamePath) {
 		if (data && typeof (data) === "object" && data.reference) {
 			const reference = this.evaluator.evaluate(data.reference);
-			const result = await this.fileUtils.load(this.fixPath(reference, gamePath), "text");
-			if (reference.match(/.(json)$/i)) {
-				return this.replaceParams(JSON.parse(result), data.params);
+			const result = await this.fileUtils.load(this.fixPath(reference, gamePath));
+			if (result instanceof Blob) {
+				return await result.text();
+			} else if (typeof result === "object") {
+				return this.replaceParams(result, data.params);
 			} else {
 				return result;
 			}
